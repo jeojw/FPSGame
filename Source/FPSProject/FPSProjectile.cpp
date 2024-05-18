@@ -33,8 +33,8 @@ AFPSProjectile::AFPSProjectile()
         // 이 컴포넌트를 사용하여 이 발사체의 이동을 주도합니다.
         ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
         ProjectileMovementComponent->SetUpdatedComponent(CollisionComponent);
-        ProjectileMovementComponent->InitialSpeed = 3000.0f;
-        ProjectileMovementComponent->MaxSpeed = 3000.0f;
+        ProjectileMovementComponent->InitialSpeed = 12000.0f;
+        ProjectileMovementComponent->MaxSpeed = 12000.0f;
         ProjectileMovementComponent->bRotationFollowsVelocity = true;
         ProjectileMovementComponent->bShouldBounce = true;
         ProjectileMovementComponent->Bounciness = 0.3f;
@@ -87,7 +87,7 @@ void AFPSProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor
 {
     if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
     {
-        OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
+        OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 10.0f, Hit.ImpactPoint);
     }
     Destroy();
 }

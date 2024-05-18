@@ -29,6 +29,10 @@ AFPSCharacter::AFPSCharacter()
 	FPSMesh->CastShadow = false;
 
 	GetMesh()->SetOwnerNoSee(true);
+
+	bIsMoving = false;
+	bIsFiring = false;
+	bIsJumping = false;
 }
 
 // Called when the game starts or when spawned
@@ -39,14 +43,12 @@ void AFPSCharacter::BeginPlay()
 	check(GEngine != nullptr);
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("We are using FPSCharacter."));
-	
 }
 
 // Called every frame
 void AFPSCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -66,28 +68,45 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void AFPSCharacter::MoveForward(float Value)
 {
-	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
-	AddMovementInput(Direction, Value);
+	
+	if (!FMath::IsNearlyZero(Value)) {
+		FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
+		AddMovementInput(Direction, Value);
+		bIsMoving = true;
+	}
+	else {
+		bIsMoving = false;
+	}
 }
 
 void AFPSCharacter::MoveRight(float Value)
 {
-	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
-	AddMovementInput(Direction, Value);
+	if (!FMath::IsNearlyZero(Value)) {
+		FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
+		AddMovementInput(Direction, Value);
+		bIsMoving = true;
+	}
+	else {
+		bIsMoving = false;
+	}
 }
 
 void AFPSCharacter::StartJump()
 {
 	bPressedJump = true;
+	bIsJumpStart = true;
 }
 
 void AFPSCharacter::StopJump()
 {
 	bPressedJump = false;
+	bIsJumpStart = false;
 }
 
 void AFPSCharacter::Fire()
 {
+	bIsFiring = true;
+
 	if (ProjectileClass)
 	{
 		FVector CameraLocation;
@@ -99,7 +118,6 @@ void AFPSCharacter::Fire()
 		FVector MuzzleLocation = CameraLocation + CameraRotation.RotateVector(MuzzleOffset);
 
 		FRotator MuzzleRotation = CameraRotation;
-		MuzzleRotation.Pitch += 10.0f;
 
 		UWorld* World = GetWorld();
 		if (World)
@@ -116,4 +134,11 @@ void AFPSCharacter::Fire()
 			}
 		}
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_StopFiring, this, &AFPSCharacter::StopFire, 0.1f, false);
+}
+
+void AFPSCharacter::StopFire()
+{
+	bIsFiring = false;
 }

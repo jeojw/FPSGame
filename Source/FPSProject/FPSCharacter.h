@@ -55,7 +55,24 @@ public:
     UFUNCTION()
     void Fire();
 
+    UFUNCTION()
+    void StopFire();
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
     FVector MuzzleOffset;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Animation)
+    bool bIsMoving;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Animation)
+    bool bIsFiring;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Animation)
+    bool bIsJumpStart;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Animation)
+    bool bIsJumping;
+
+    FTimerHandle TimerHandle_StopFiring;
 };
 
