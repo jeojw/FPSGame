@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h" 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "FPSProjectile.h"
 #include "FPSCharacter.generated.h"
 
@@ -32,6 +35,7 @@ public:
     // 함수 기능을 입력에 바인딩하기 위해 호출
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+
     // 앞으로 이동 및 뒤로 이동 입력을 처리합니다.
     UFUNCTION()
     void MoveForward(float Value);
@@ -49,8 +53,14 @@ public:
     UPROPERTY(VisibleAnywhere)
     UCameraComponent* FPSCameraComponent;
 
-    UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+    UPROPERTY(VisibleDefaultsOnly, Category = FPSCharacter)
     USkeletalMeshComponent* FPSMesh;
+
+    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Weapon)
+    USkeletalMeshComponent* GunMesh;
+
+    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = FPSWeapon)
+    USkeletalMeshComponent* FPSGunMesh;
 
     UFUNCTION()
     void Fire();
@@ -72,6 +82,9 @@ public:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Animation)
     bool bIsJumping;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Animation)
+    bool bIsJumpEnd;
 
     FTimerHandle TimerHandle_StopFiring;
 };

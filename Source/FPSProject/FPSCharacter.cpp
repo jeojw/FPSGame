@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "FPSCharacter.h"
 
 // Sets default values
@@ -33,6 +32,18 @@ AFPSCharacter::AFPSCharacter()
 	bIsMoving = false;
 	bIsFiring = false;
 	bIsJumping = false;
+
+	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMesh"));
+	GunMesh->SetOnlyOwnerSee(true);
+	GunMesh->bCastDynamicShadow = false;
+	GunMesh->CastShadow = false;
+	GunMesh->SetupAttachment(RootComponent);
+
+	FPSGunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FPSGunMesh"));
+	FPSGunMesh->SetOnlyOwnerSee(true);
+	FPSGunMesh->bCastDynamicShadow = false;
+	FPSGunMesh->CastShadow = false;
+	FPSGunMesh->SetupAttachment(FPSCameraComponent);
 }
 
 // Called when the game starts or when spawned
@@ -43,12 +54,60 @@ void AFPSCharacter::BeginPlay()
 	check(GEngine != nullptr);
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("We are using FPSCharacter."));
+
+	if (GetMesh() && GunMesh)
+	{
+		const USkeletalMeshSocket* bodyGrapSocket = GetMesh()->GetSocketByName(TEXT("grapSocket"));
+		const USkeletalMeshSocket* gunGrapSocket = GetMesh()->GetSocketByName(TEXT("grapSocket"));
+
+		if (bodyGrapSocket && gunGrapSocket) {
+			FName gunSocketName = gunGrapSocket->SocketName;
+			GunMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, gunSocketName);
+		}
+
+		const USkeletalMeshSocket* bodyHandleSocket = GetMesh()->GetSocketByName(TEXT("handleSocket"));
+		const USkeletalMeshSocket* gunHandleSocket = GetMesh()->GetSocketByName(TEXT("handleSocket"));
+		
+		if (bodyHandleSocket && gunHandleSocket) {
+			FName gunSocketName = gunHandleSocket->SocketName;
+			GunMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, gunSocketName);
+		}
+
+		
+	}
+
+	if (FPSGunMesh && FPSMesh)
+	{
+		const USkeletalMeshSocket* bodyGrapSocket = FPSMesh->GetSocketByName(TEXT("grapSocket"));
+		const USkeletalMeshSocket* gunGrapSocket = FPSGunMesh->GetSocketByName(TEXT("grapSocket"));
+		if (bodyGrapSocket && gunGrapSocket)
+		{
+			FName gunSocketName = gunGrapSocket->SocketName;
+			FPSGunMesh->AttachToComponent(FPSMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, gunSocketName);
+		}
+
+		const USkeletalMeshSocket* bodyHandleSocket = FPSMesh->GetSocketByName(TEXT("handleSocket"));
+		const USkeletalMeshSocket* gunHandleSocket = FPSGunMesh->GetSocketByName(TEXT("handleSocket"));
+		if (bodyHandleSocket && gunHandleSocket)
+		{
+			FName gunSocketName = gunHandleSocket->SocketName;
+			FPSGunMesh->AttachToComponent(FPSMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, gunSocketName);
+		}
+	}
 }
 
 // Called every frame
 void AFPSCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (GetCharacterMovement()->IsFalling()) {
+		bIsJumping = true;
+	}
+	else {
+		bIsJumping = false;
+		bIsJumpEnd = true;
+	}
 }
 
 void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
